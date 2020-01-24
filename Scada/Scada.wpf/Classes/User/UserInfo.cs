@@ -2,7 +2,7 @@
 {
     public static class UserInfo
     {
-        public static model.User InvalidUser = new model.User
+        public static model.DBs.User InvalidUser = new model.DBs.User
         {
             User_ID = 0,
             UserName = "No User",

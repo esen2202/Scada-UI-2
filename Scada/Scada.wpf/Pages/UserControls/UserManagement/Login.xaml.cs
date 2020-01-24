@@ -1,5 +1,5 @@
 ﻿using Scada.core;
-using Scada.model;
+using Scada.model.DBs;
 using Scada.wpf.Classes;
 using Scada.wpf.Classes.User;
 using System.Windows;
@@ -78,16 +78,16 @@ namespace Scada.wpf.Pages.UserControls.UserManagement
         private void Btn_signIn(object sender, RoutedEventArgs e)
         {
             userRecord = new User();
-            db = new core.DB();
+            db = new DB("UsersDB", "");
 
             #region user data transfer to MainWindow
 
             mainWindow = (IUserInfoTransfer)Application.Current.MainWindow;
             if (txt_uName.Text != "" && txt_uPass.Password != "")
             {
-                if (db.SignIn(txt_uName.Text, txt_uPass.Password, out userRecord))
+                if (db.SignInWithPassword(txt_uName.Text, txt_uPass.Password))
                 {
-                    mainWindow.Transfer(userRecord);
+                    mainWindow.Transfer(db.ActiveUser);
                     notifyCall = new NotificationPanelCall("Login", "Successfully logged in", StatusColor.Success, 3);
                     RemoveThis();
                 }

@@ -1,7 +1,7 @@
 ﻿#define Diper1
 
 using Scada.core;
-using Scada.model;
+using Scada.model.DBs;
 using Scada.wpf.Classes;
 using Scada.wpf.Classes.User;
 using Scada.wpf.Pages.Comm;
@@ -20,27 +20,13 @@ using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 
-
-#if Diper
-using Scada.Diper.Reporting;
-using Scada.Diper.Communication;
-using Scada.Diper.Information;
-using Scada.Diper.Monitoring;
-using Scada.Diper.Classes;
-using Scada.Diper.Settings;
-
-#else
-
-#endif
-
 namespace Scada.wpf
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     public partial class MainWindow : Window, IUserInfoTransfer
-    {
-        //! General Definations
+    { 
         #region [General Definations]
 
         public static DataContextBundle dataContextMainWindow;
@@ -59,7 +45,6 @@ namespace Scada.wpf
 
         #endregion
 
-        //! Window Structures
         #region [Window Structures]
 
         private void InitializeStatus()
@@ -87,6 +72,8 @@ namespace Scada.wpf
             gc_sideMenu.Width = (SetInterface.Default.SideBarSymbolic) ? gl80 : gl250;
             dp_UserInfo.Visibility = (SetInterface.Default.SideBarSymbolic) ? Visibility.Visible : Visibility.Hidden;
 
+            DB db = new DB("UsersDB","");
+            db.CheckDB();
         }
 
         public MainWindow()
@@ -204,7 +191,6 @@ namespace Scada.wpf
 
         #endregion
 
-        //! Communication
         #region [Communication]
 
         /// <summary>
@@ -221,13 +207,11 @@ namespace Scada.wpf
         public void ConnectToDevice()
         {
             Thread.Sleep(200);
-
         }
 
         public void DisconnectDevice()
         {
             Thread.Sleep(200);
-   
         }
 
         /// <summary>
@@ -266,7 +250,6 @@ namespace Scada.wpf
 
         }
 
-        //! Event Methods
         #region [Event Methods]
 
         /// <summary>
@@ -321,7 +304,6 @@ namespace Scada.wpf
 
         #endregion
 
-        //! Window Controls
         #region [Window Controls]
 
         private static int ReconnectCounter;
@@ -444,7 +426,6 @@ namespace Scada.wpf
 
         #endregion
 
-        //! Paging
         #region [Paging]
 
         /// <summary>
@@ -587,7 +568,6 @@ namespace Scada.wpf
 
         #endregion
 
-        //! Interface Implements
         #region [interfaces implements]
         void IUserInfoTransfer.Transfer(User user)
         {

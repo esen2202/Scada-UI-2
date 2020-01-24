@@ -55,7 +55,7 @@ namespace Scada.wpf.Classes.Converters
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if ((short)value == 0)
+            if ((int)value == 0)
             {
                 return Visibility.Collapsed;
 

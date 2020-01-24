@@ -1,5 +1,6 @@
 ﻿using Scada.core;
 using Scada.model;
+using Scada.model.DBs;
 using Scada.wpf.Classes;
 using Scada.wpf.Classes.User;
 using Scada.wpf.Pages.Windows;
@@ -81,13 +82,13 @@ namespace Scada.wpf.Pages.UserControls.UserManagement
 
         private void UC_EditUsers_Loaded(object sender, RoutedEventArgs e)
         {
-            db = new DB();
+            db = new DB("UsersDB", "");
             CurrentUser = MainWindow.dataContextMainWindow.UserInfo;
             wp_editPanel.IsEnabled = false;
             cb_users.IsEnabled = true;
 
             UnloadAllFields();
- 
+
             LoadUsers();
 
             LoadAuthorizations();
@@ -100,7 +101,7 @@ namespace Scada.wpf.Pages.UserControls.UserManagement
 
             if (!CheckEmpty())
             {
-                var currentPass = core.CryptorEngine.Encrypt(txt_CurrentUPass_new.Password, true);
+                var currentPass = txt_CurrentUPass_new.Password;
                 if (CurrentUser.UserPassword != currentPass)
                 {
                     lbl_WarningMessage.Content = "your password is faulty";
@@ -127,7 +128,7 @@ namespace Scada.wpf.Pages.UserControls.UserManagement
                             UserPassword = txt_uPass_new.Password,
                             SuperUser = false,
                             Enable = true,
-                            Authorization = (short)cb_auth_new.SelectedValue,
+                            Authorization = (int)cb_auth_new.SelectedValue,
                             Email = txt_eMail_new.Text,
                             Name = txt_name_new.Text,
                             SecondName = txt_secondName_new.Text,
@@ -139,16 +140,16 @@ namespace Scada.wpf.Pages.UserControls.UserManagement
                             DateTime = DateTime.Now
                         };
 
-                        using (db = new core.DB())
+                        using (db = new DB("UsersDB", ""))
                         {
-                            var result = (int)db.UpdateUser(user);
+                            var result = (int)db.UpdateUser(ref user, CurrentUser.User_ID);
                             switch (result)
                             {
                                 case 1:
                                     notifyCall = new NotificationPanelCall("Update User", "Successfully updated", StatusColor.Success, 3);
                                     RemoveThis();
                                     txt_CurrentUPass_new.Password = "";
-                                    Btn_CancelUpdate_Click(sender,e);
+                                    Btn_CancelUpdate_Click(sender, e);
                                     LoadUsers();
                                     break;
                                 case 0:
@@ -183,32 +184,40 @@ namespace Scada.wpf.Pages.UserControls.UserManagement
 
         private void Btn_DeleteUser_Click(object sender, RoutedEventArgs e)
         {
-            var resultMsg = MessageBox.Show("Selected user will delete.\n\nAre you sure?", "Delete User", MessageBoxButton.YesNo, MessageBoxImage.Question);
-            if (resultMsg == MessageBoxResult.Yes)
+            if (SelectedUser != null && !SelectedUser.SuperUser)
             {
-                var result = db.DeleteUser((long)cb_users.SelectedValue);
-                switch (result)
+                var resultMsg = MessageBox.Show("Selected user will delete.\n\nAre you sure?", "Delete User", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                if (resultMsg == MessageBoxResult.Yes)
                 {
-                    case 1:
-                        notifyCall = new NotificationPanelCall("Delete User", "Successfully deleted", StatusColor.Success, 3);
-                        UnloadAllFields();
-                        cb_users.SelectedIndex = -1;
-                        LoadUsers();
-                        cb_users.IsEnabled = true;
-                        wp_editPanel.IsEnabled = false;
-                        break;
-                    case 0:
-                        notifyCall = new NotificationPanelCall("Error", "User not found", StatusColor.Error, 3);
-                        CustomAnimations.ShakeAnimation(this);
-                        break;
-                    case -1:
-                        notifyCall = new NotificationPanelCall("Error", "Something went wrong", StatusColor.Error, 3);
-                        CustomAnimations.ShakeAnimation(this);
-                        break;
-                    default:
-                        break;
-                }
+                    var result = db.DeleteUser((long)cb_users.SelectedValue);
+                    switch (result)
+                    {
+                        case 1:
+                            notifyCall = new NotificationPanelCall("Delete User", "Successfully deleted", StatusColor.Success, 3);
+                            UnloadAllFields();
+                            cb_users.SelectedIndex = -1;
+                            LoadUsers();
+                            cb_users.IsEnabled = true;
+                            wp_editPanel.IsEnabled = false;
+                            break;
+                        case 0:
+                            notifyCall = new NotificationPanelCall("Error", "User not found", StatusColor.Error, 3);
+                            CustomAnimations.ShakeAnimation(this);
+                            break;
+                        case -1:
+                            notifyCall = new NotificationPanelCall("Error", "Something went wrong", StatusColor.Error, 3);
+                            CustomAnimations.ShakeAnimation(this);
+                            break;
+                        default:
+                            break;
+                    }
 
+                }
+            }
+            else
+            {
+                notifyCall = new NotificationPanelCall("Error", "Unsuccessful", StatusColor.Error, 3);
+                CustomAnimations.ShakeAnimation(this);
             }
 
         }
@@ -223,7 +232,7 @@ namespace Scada.wpf.Pages.UserControls.UserManagement
             if (cb_users.SelectedValue != null)
             {
                 wp_editPanel.IsEnabled = true;
-                SelectedUser = db.GetUser((long)cb_users.SelectedValue, CurrentUser.User_ID);
+                SelectedUser = db.GetUser((long)cb_users.SelectedValue);
                 DataContext = SelectedUser;
                 cb_users.IsEnabled = false;
             }
@@ -233,7 +242,7 @@ namespace Scada.wpf.Pages.UserControls.UserManagement
         {
             UnloadAllFields();
             wp_editPanel.IsEnabled = false;
-            SelectedUser = db.GetUser((long)cb_users.SelectedValue, CurrentUser.User_ID);
+            SelectedUser = db.GetUser((long)cb_users.SelectedValue);
             DataContext = SelectedUser;
             cb_users.IsEnabled = true;
             cb_users.SelectedIndex = -1;

@@ -1,5 +1,5 @@
 ﻿using Scada.core;
-using Scada.model;
+using Scada.model.DBs;
 using Scada.wpf.Classes;
 using Scada.wpf.Pages.Windows;
 using System;
@@ -124,9 +124,9 @@ namespace Scada.wpf.Pages.UserControls.UserManagement
                         DateTime = DateTime.Now
                     };
 
-                    using (db = new core.DB())
+                    using (db = new DB("UsersDB", ""))
                     {
-                        var result = db.AddUser(user);
+                        var result = db.AddUser(ref user);
                         switch (result)
                         {
                             case 1:

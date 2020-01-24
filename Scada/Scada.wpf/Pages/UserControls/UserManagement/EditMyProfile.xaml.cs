@@ -1,5 +1,5 @@
 ﻿using Scada.core;
-using Scada.model;
+using Scada.model.DBs;
 using Scada.wpf.Classes;
 using Scada.wpf.Classes.User;
 using Scada.wpf.Pages.Windows;
@@ -41,7 +41,7 @@ namespace Scada.wpf.Pages.UserControls.UserManagement
 
             if (!CheckEmpty())
             {
-                var currentPass = core.CryptorEngine.Encrypt(txt_CurrentUPass_new.Password, true);
+                var currentPass = txt_CurrentUPass_new.Password;
                 if (CurrentUser.UserPassword != currentPass)
                 {
                     lbl_WarningMessage.Content = "current password is faulty";
@@ -65,7 +65,7 @@ namespace Scada.wpf.Pages.UserControls.UserManagement
                         {
                             User_ID = CurrentUser.User_ID,
                             UserName = txt_uName_new.Text,
-                            UserPassword = (txt_uPass_new.Password != "") ? txt_uPass_new.Password : CryptorEngine.Decrypt(CurrentUser.UserPassword, true),
+                            UserPassword = (txt_uPass_new.Password != "") ? txt_uPass_new.Password : CurrentUser.UserPassword,
                             SuperUser = false,
                             Enable = true,
                             Authorization = CurrentUser.Authorization,
@@ -80,9 +80,9 @@ namespace Scada.wpf.Pages.UserControls.UserManagement
                             DateTime = CurrentUser.DateTime
                         };
 
-                        using (db = new core.DB())
+                        using (db = new DB("UsersDB", ""))
                         {
-                            var result = db.UpdateUser(user);
+                            var result = db.UpdateUser(ref user, CurrentUser.User_ID);
                             switch (result)
                             {
                                 case 1:

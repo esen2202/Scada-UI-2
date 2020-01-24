@@ -2,6 +2,6 @@
 {
     public interface IUserInfoTransfer
     {
-        void Transfer(model.User  userInfo);
+        void Transfer(model.DBs.User  userInfo);
     }
 }

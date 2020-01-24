@@ -12,7 +12,7 @@ namespace Scada.wpf.Classes.User
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            return AuthorizatonConverter.ConvertAuthorizationString((short)value);
+            return AuthorizatonConverter.ConvertAuthorizationString((int)value);
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
